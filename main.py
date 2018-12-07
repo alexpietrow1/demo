@@ -9,6 +9,7 @@ Curious, Creative, Tenacious(requires hopefulness)
 
 **********WHAT I WILL CHANGE:
 The character will constantly be jumping
+Add a ducking feature to the sprite
 **********Gameplay ideas:
 Jump on enemy head to create jump boost using power up code
 Randomize jump sound
@@ -158,23 +159,18 @@ class Game:
                 print("player is " + str(self.player.pos.y))
                 print("mob is " + str(mob_hits[0].rect.top))
                 self.playing = False
-        # check to see if player can jump - if falling
-        if self.player.vel.y > 0:
-            hits = pg.sprite.spritecollide(self.player, self.platforms, False)
-            if hits:
-                ''' set var to be current hit in list to find which to 'pop' to 
-                when two or more collide with player'''
-                find_lowest = hits[0]
-                for hit in hits:
-                    if hit.rect.bottom > find_lowest.rect.bottom:
-                        print("hit rect bottom " + str(hit.rect.bottom))
-                        find_lowest = hit
-                # fall if center is off platform
-                if self.player.pos.x < find_lowest.rect.right + 5 and self.player.pos.x > find_lowest.rect.left - 5:
-                    if self.player.pos.y < find_lowest.rect.centery:
-                        self.player.pos.y = find_lowest.rect.top
-                        self.player.vel.y = 0
-                        self.player.jumping = False
+        '''CHANGE: PLATFORM IS NOW LIKE THE MOB'S HEAD BECAUSE PLAYER CAN ONLY BOUNCE OFF IT '''
+        #plat_hits checks for player and platform group collision
+        plat_hits = pg.sprite.spritecollide(self.player, self.platforms, False)
+        if plat_hits:
+            #checks for if bottom of player touches top of platform
+            if self.player.pos.y - 35 < plat_hits[0].rect.top:
+                print("hit top")
+                print("player is " + str(self.player.pos.y))
+                print("mob is " + str(plat_hits[0].rect.top))
+                self.player.vel.y = -PLAYER_JUMP
+                self.jump_sound[choice([0,1])].play()
+
         # if player reaches top 1/4 of screen...
         if self.player.rect.top <= HEIGHT / 4:
             # spawn a cloud
@@ -226,7 +222,7 @@ class Game:
             # p = Platform(self, random.randrange(0,WIDTH-width), 
             #                 random.randrange(-75, -30))
             Platform(self, random.randrange(0,WIDTH-width), 
-                            random.randrange(-75, -30))
+                            random.randrange(-60, -30))
             # self.platforms.add(p)
             # self.all_sprites.add(p)
     ##### EVENTS METHOD
@@ -236,13 +232,10 @@ class Game:
                     if self.playing:
                         self.playing = False
                     self.running = False
+                '''CHANGE: JUMP IS NO LONGER IN EVENTS, BUT THERE IS A SINKING FEATURE FOR THE PLAYER'''
                 if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_SPACE:
-                        self.player.jump()
-                if event.type == pg.KEYUP:
-                    if event.key == pg.K_SPACE:
-                        """ # cuts the jump short if the space bar is released """
-                        self.player.jump_cut()
+                    if event.key == pg.K_s:
+                        self.player.sink()
                 if event.type == pg.KEYUP:
                     if event.key == pg.K_p:
                         """ pause """
@@ -272,7 +265,7 @@ class Game:
         """ # game splash screen """
         self.screen.fill(BLACK)
         self.draw_text(TITLE, 48, WHITE, WIDTH/2, HEIGHT/4)
-        self.draw_text("WASD to move, Space to jump", 22, WHITE, WIDTH/2, HEIGHT/2)
+        self.draw_text("AD to move, S to sink", 22, WHITE, WIDTH/2, HEIGHT/2)
         self.draw_text("Press any key to play...", 22, WHITE, WIDTH / 2, HEIGHT * 3/4)
         self.draw_text("High score " + str(self.highscore), 22, WHITE, WIDTH / 2, 15)
         pg.display.flip()
@@ -285,7 +278,7 @@ class Game:
             return
         self.screen.fill(BLACK)
         self.draw_text(TITLE, 48, WHITE, WIDTH/2, HEIGHT/4)
-        self.draw_text("WASD to move, Space to jump", 22, WHITE, WIDTH/2, HEIGHT/2)
+        self.draw_text("AD to move, S to sink", 22, WHITE, WIDTH/2, HEIGHT/2)
         self.draw_text("Press any key to play...", 22, WHITE, WIDTH / 2, HEIGHT * 3/4)
         self.draw_text("High score " + str(self.highscore), 22, WHITE, WIDTH / 2, HEIGHT/2 + 40)
         if self.score > self.highscore:

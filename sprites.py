@@ -46,20 +46,20 @@ class Player(Sprite):
         self.acc = vec(0, 0)
         print("adding vecs " + str(self.vel + self.acc))
     def load_images(self):
-        self.standing_frames = [self.game.spritesheet.get_image(690, 406, 120, 201),
-                                self.game.spritesheet.get_image(614, 1063, 120, 191)
+        self.standing_frames = [self.game.spritesheet.get_image(584, 0, 121, 201),
+                                self.game.spritesheet.get_image(581, 1265, 121,191)
                                 ]
         for frame in self.standing_frames:
             frame.set_colorkey(BLACK)
-        self.walk_frames_r = [self.game.spritesheet.get_image(678, 860, 120, 201),
-                                self.game.spritesheet.get_image(692, 1458, 120, 207)
+        self.walk_frames_r = [self.game.spritesheet.get_image(584, 203, 121, 201),
+                                self.game.spritesheet.get_image(678, 651, 121, 207)
                                 ]
         '''setup left frames by flipping and appending them into an empty list'''
         self.walk_frames_l = []
         for frame in self.walk_frames_r:
             frame.set_colorkey(BLACK)
             self.walk_frames_l.append(pg.transform.flip(frame, True, False))
-        self.jump_frame = self.game.spritesheet.get_image(382, 763, 150, 181)
+        self.jump_frame = self.game.spritesheet.get_image(416, 1660, 150, 181)
         self.jump_frame.set_colorkey(BLACK)
     def update(self):
         self.animate()
@@ -86,26 +86,6 @@ class Player(Sprite):
             self.pos.x = WIDTH + self.rect.width / 2
 
         self.rect.midbottom = self.pos
-    # cuts the jump short when the space bar is released
-    def jump_cut(self):
-        if self.jumping:
-            if self.vel.y < -5:
-                self.vel.y = -5
-    def jump(self):
-        print("jump is working")
-        # check pixel below
-        self.rect.y += 2
-        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
-        # adjust based on checked pixel
-        self.rect.y -= 2
-        # only allow jumping if player is on platform
-        if hits and not self.jumping:
-            # play sound only when space bar is hit and while not jumping
-            self.game.jump_sound[choice([0,1])].play()
-            # tell the program that player is currently jumping
-            self.jumping = True
-            self.vel.y = -PLAYER_JUMP
-            print(self.acc.y)
     def animate(self):
         # gets time in miliseconds
         now = pg.time.get_ticks()
@@ -145,6 +125,11 @@ class Player(Sprite):
                 self.rect.bottom = bottom
         # collide will find this property if it is called self.mask
         self.mask = pg.mask.from_surface(self.image)
+    ''' CHANGE: SINKING FUNCTION FOR WHEN PLAYER IS IN MID AIR'''
+    def sink(self):
+        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
+        if not hits:
+            self.vel.y = PLAYER_SINK
 class Cloud(Sprite):
     def __init__(self, game):
         # allows layering in LayeredUpdates sprite group
@@ -178,9 +163,7 @@ class Platform(Sprite):
         self.groups = game.all_sprites, game.platforms
         Sprite.__init__(self, self.groups)
         self.game = game
-        images = [self.game.spritesheet.get_image(0, 288, 380, 94), 
-                  self.game.spritesheet.get_image(213, 1662, 201, 100)]
-        self.image = random.choice(images)
+        self.image = self.game.spritesheet.get_image(434, 1265, 145, 110)
         self.image.set_colorkey(BLACK)
         '''leftovers from random rectangles before images'''
         # self.image = pg.Surface((w,h))
@@ -193,6 +176,11 @@ class Platform(Sprite):
             Pow(self.game, self)
         if random.randrange(100) < POW_SPAWN_PCT:
             Cactus(self.game, self)
+    '''CHANGE: FUNCTION FOR SPRING BEING FLATTENED WHEN JUMPED ON'''
+    def boing(self):
+        self.image = self.game.spritesheet.get_image(0, 1988, 145, 57)
+        self.image.set_colorkey(BLACK)
+        
         
 class Pow(Sprite):
     def __init__(self, game, plat):
@@ -204,7 +192,7 @@ class Pow(Sprite):
         self.game = game
         self.plat = plat
         self.type = random.choice(['boost'])
-        self.image = self.game.spritesheet.get_image(820, 1805, 71, 70)
+        self.image = self.game.spritesheet.get_image(826, 134, 71, 70)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = self.plat.rect.centerx
@@ -222,9 +210,9 @@ class Mob(Sprite):
         self.groups = game.all_sprites, game.mobs
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image_up = self.game.spritesheet.get_image(566, 510, 122, 139)
+        self.image_up = self.game.spritesheet.get_image(800, 860, 110, 141)
         self.image_up.set_colorkey(BLACK)
-        self.image_down = self.game.spritesheet.get_image(568, 1534, 122, 135)
+        self.image_down = self.game.spritesheet.get_image(801, 609, 110, 141)
         self.image_down.set_colorkey(BLACK)
         self.image = self.image_up
         self.image.set_colorkey(BLACK)

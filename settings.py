@@ -8,19 +8,20 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 REDDISH = (240,55,66)
-SKY_BLUE = (143, 185, 252)
+SKY_BLUE = (255,160,122)
 FONT_NAME = 'arial'
 SPRITESHEET = "spritesheet_jumper.png"
 SPRITESHEET2 = "spritesheet.png"
 # data files
 HS_FILE = "highscore.txt"
 # player settings
-PLAYER_ACC = 0.5
+PLAYER_ACC = 0.7
 PLAYER_FRICTION = -0.12
 PLAYER_GRAV = 0.8
 PLAYER_JUMP = 20
+PLAYER_SINK = 30
 # game settings
-BOOST_POWER = 60
+BOOST_POWER = 120
 POW_SPAWN_PCT = 7
 MOB_FREQ = 500
 # layers - uses numerical value in layered sprites
